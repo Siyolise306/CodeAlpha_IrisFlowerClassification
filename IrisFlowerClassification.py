@@ -18,7 +18,7 @@ from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classifica
 from sklearn.model_selection import cross_val_score
 
 
-#--Create output folders upfront so nothing fails later trying to save into them--
+#--Creating output folders upfront so nothing fails later trying to save into them--
 os.makedirs("results", exist_ok = True)
 os.makedirs("images", exist_ok= True)
 
@@ -27,7 +27,7 @@ print("\n", "="* 50)
 print("1. DATA LOADING")
 print("=" * 50)
 
-#--Load dataset from CSV.file--
+#--Loading dataset from CSV.file--
 df = pd.read_csv(r"C:\Users\User\Desktop\Internship\Iris.csv")
 print("Data laoded successfully")
 
@@ -51,7 +51,7 @@ print("\n", "="* 50)
 print("3. DATA CLEANING")
 print("="*50)
 
-#--Check for missing values--
+#--Checking for missing values--
 missing_values = df.isnull().sum()
 if missing_values.sum() > 0:
     print(f"Missing values found: {missing_values}")
@@ -62,7 +62,7 @@ else:
 print("\n data distribution:")
 print(df['Species'].value_counts())
 
-#--Check for and remove duplicate rows--
+#--Checking for and remove duplicate rows--
 duplicates_no = df.duplicated().sum()
 if duplicates_no > 0:
     print("Removing duplicates")
@@ -101,7 +101,7 @@ plt.savefig("images/petal_scatter.png", dpi=150, bbox_inches="tight") #save BEFO
 plt.show()
 
 #--Feature/target split--
-# Drop Species (target) and Id (just a row identifier, not a real feature)
+# Droping Species (target) and Id (just a row identifier, not a real feature)
 X = df.drop(["Species", "Id"], axis = 1, errors="ignore")
 y = df["Species"]
 
@@ -115,7 +115,7 @@ x_train, x_test, y_train, y_test = train_test_split(
 
 #--Feature scaling--
 #KNN is distance-based, so features must be on the same scale.
-#Fit the scaler on training data only, then apply it to test data.
+#Fitting the scaler on training data only, then apply it to test data.
 scaler = StandardScaler()
 x_train_scaled = scaler.fit_transform(x_train)
 x_test_scaled = scaler.transform(x_test)
@@ -124,7 +124,7 @@ print("\n", "="* 50)
 print("5. BASELINE MODEL (K=3)")
 print("="*50)
 
-#--Train a baseline KNN model with an arbitrary starting K--
+#--Training a baseline KNN model with an arbitrary starting K--
 model = KNeighborsClassifier(n_neighbors=3)
 model.fit(x_train_scaled, y_train)
 print("Model trained successfully.")
@@ -155,7 +155,7 @@ print("\n", "="* 50)
 print("6. FINDING THE BEST K (Cross-Validation)")
 print("="*50)
 
-#--Test K values 1-20 using 5-fold cross_validation--
+#--Testing K values 1-20 using 5-fold cross_validation--
 #Cross-validation gives a more reliable accuracy estimate than a single split.
 k_range = range(1,21)
 cv_scores = []
@@ -182,11 +182,11 @@ print("\n", "="* 50)
 print("7. FINAL MODEL (Best K)")
 print("="*50)
 
-#--Train the final model using the best K found above--
+#--Training the final model using the best K found above--
 final_model = KNeighborsClassifier(n_neighbors=best_k)
 final_model.fit(x_train_scaled, y_train)
 
-#--Save the trained model and scaler for reuse without retraining--
+#--Saved the trained model and scaler for reuse without retraining--
 # Both must be saved together: new data needs the SAME scaling 
 # transformating the training data went through.
 joblib.dump(final_model, "results/knn_model.joblib")
@@ -201,20 +201,20 @@ print("\n", "="* 50)
 print("8. CLASSIFICATION REPORT + SAVING RESULTS")
 print("="*50)
 
-#--Generate and print the classification report--
+#--Generating and printing the classification report--
 report = classification_report(y_test, final_predictions)
 print(report)
 
-#--Save report as plain text (readable, good for pasting into a README)--
+#--Saving report as plain text (readable, good for pasting into a README)--
 with open("classification_report.txt", "w") as f:
     f.write(report)
 
-#--Save report as CSV (structured, good for reuse/analysis/tables)--
+#--Saving report as CSV (structured, good for reuse/analysis/tables)--
 report_dict = classification_report(y_test, final_predictions, output_dict = True)
 report_df = pd.DataFrame(report_dict).transpose()
 report_df.to_csv("results/classification_report.csv")
 
-#--Auto-generate a ready-to-paste Results section for the README
+#--Auto-generated a ready-to-paste Results section for the README
 # Pulls every value directly from the results above, so its always accurate.
 species_rows = ""
 for species in ["Iris-setosa", "Iris-versicolor", "Iris-virginica"]:
